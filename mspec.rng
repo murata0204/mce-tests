@@ -33,9 +33,7 @@
   
   <define name="m.scenario">
     <element name="m:scenario">
-      <optional>
-        <attribute name="label"/>
-      </optional>
+      <attribute name="label"/>
       <optional>
         <attribute name="mceVersion">
           <data type="NCName"/>
@@ -51,9 +49,7 @@
         <oneOrMore>
           <choice>
             <element name="m:expect">
-              <optional>
-                <attribute name="label"/>
-              </optional>
+              <attribute name="label"/>
               <attribute name="understands">
                 <data type="anyURI"/>
               </attribute>

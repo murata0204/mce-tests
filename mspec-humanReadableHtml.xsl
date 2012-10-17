@@ -29,6 +29,7 @@
                     .context, .expectedContent { font-family: Courier; font-size: 0.9em; white-space: pre-wrap; }
                     .context { color: green; }
                     .expectedContent { color: blue; }
+                    .error { color: red; }
                 </style>
             </head>
             <body>
@@ -41,7 +42,7 @@
     </xsl:template>
     
     <xsl:template match="m:scenario[not(parent::scenario)]" priority="1">
-        <tr><th colspan="2"><xsl:value-of select="@label"/></th></tr>
+        <tr><th colspan="2"><xsl:value-of select="@label"/> <xsl:value-of select="if (@mceVersion) then concat(' (for version: ',@mceVersion,')') else ''"/></th></tr>
         <xsl:apply-templates select=".//m:expect | .//m:expectError"/>
     </xsl:template>
     
@@ -51,14 +52,19 @@
     
     <xsl:template match="m:expect | m:expectError">
         <tr>
+            <td colspan="2">
+                <span class="expected"><xsl:value-of select="ancestor::*/@label | @label"/></span>
+                <span class="understanding"><xsl:value-of select="@understands"/></span>
+            </td>
+        </tr>
+        <tr>
             <td>
                 <xsl:apply-templates select="preceding-sibling::m:context"/>
             </td>
             <td>  
                 <div class="expectation">
-                    <span class="expected"><xsl:value-of select="ancestor::*/@label | @label"/></span>
-                    <span class="understanding"><xsl:value-of select="@understands"/></span>
                     <div class="expectedContent"><xsl:apply-templates mode="escape"/></div>
+                    <xsl:if test="local-name()='expectError'"><div class="error">Expect error</div></xsl:if>
                 </div>
             </td>
         </tr>
