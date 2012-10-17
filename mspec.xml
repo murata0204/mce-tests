@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="mspec.rng" type="xml"?>
+<?xml-model href="mspec.rng"?>
+<m:description xmlns:m="http://schemas.openxmlformats.org/mspec"
+    title="Markup Compatibility Extensions">
+    
+    <!--
+       MCE test cases, defined using a custom "MSpec" markup based on Jeni Tennison's XSpec.   
+    -->
+    
+    <m:scenario label="for ignorable attribute content">
+        <m:context>
+            <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                    xmlns:v2="http://schemas.openxmlformats.org/Circles/v2" 
+                    xmlns:v3="http://schemas.openxmlformats.org/Circles/v3"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="v2 v3">
+                <Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" v3:Luminance="13" />
+                <Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" v3:Luminance="13" />
+            </Circles>
+        </m:context>
+        <m:expect label="a v1 consumer should only see the v1 content" 
+                understands="http://schemas.openxmlformats.org/Circles/v1">
+            <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" >
+                <Circle Center="0,0" Radius="20" Color="Blue" />
+                <Circle Center="25,0" Radius="20" Color="Black" />
+            </Circles>
+        </m:expect>
+        <m:expect label="a v2 consumer should see the v2 and v1 content" 
+                understands="http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2">
+            <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                    xmlns:v2="http://schemas.openxmlformats.org/Circles/v2">
+                <Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" />
+                <Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" />
+            </Circles>
+        </m:expect>
+        <m:expect label="a v3 consumer should see the v3, v2 and v1 content" 
+            understands="http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2 http://schemas.openxmlformats.org/Circles/v3">
+            <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                    xmlns:v2="http://schemas.openxmlformats.org/Circles/v2" 
+                    xmlns:v3="http://schemas.openxmlformats.org/Circles/v3">
+                <Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" v3:Luminance="13" />
+                <Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" v3:Luminance="13" />
+            </Circles>
+        </m:expect>        
+    </m:scenario>
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    
+    <m:scenario label="for ignorable elements">
+        <m:context>
+            <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                    xmlns:a="http://schemas.openxmlformats.org/MyExtension/v1" 
+                    xmlns:b="http://schemas.openxmlformats.org/MyExtension/v1" mc:Ignorable="a">
+                <Circle Center="0,0" Radius="20" Color="Blue" />
+                <a:IgnoreMe />
+                <b:IgnoreMeToo />
+            </Circles>
+        </m:context>
+        <m:expect label="should ignore elements based on namespace, not on namespace prefix" 
+                understands="http://schemas.openxmlformats.org/Circles/v1">
+            <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1">
+                <Circle Center="0,0" Radius="20" Color="Blue" />
+            </Circles>            
+        </m:expect>
+        <m:expect label="should retain ignored elements based on namespace, not on namespace prefix" 
+                understands="http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/MyExtension/v1">
+            <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"
+                    xmlns:a="http://schemas.openxmlformats.org/MyExtension/v1">
+                <Circle Center="0,0" Radius="20" Color="Blue" />
+                <a:IgnoreMe />
+                <a:IgnoreMeToo />                
+            </Circles>            
+        </m:expect> 
+    </m:scenario>
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    
+    <m:scenario label="for processContents">
+        <m:scenario>
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                        xmlns:v2="http://schemas.openxmlformats.org/Circles/v2" 
+                        mc:Ignorable="v2" mc:ProcessContent="v2:Blink" > 
+                    <v2:Watermark Opacity="v0.1">
+                        <Circle Center="0,0" Radius="20" Color="Blue" /> 
+                        <Circle Center="25,0" Radius="20" Color="Black" />
+                        <Circle Center="50,0" Radius="20" Color="Red" />
+                    </v2:Watermark> 
+                    <v2:Blink blinkPeriod="50ms">
+                        <Circle Center="13,0" Radius="20" Color="Yellow" />
+                        <Circle Center="38,0" Radius="20" Color="Green" />
+                    </v2:Blink>
+                </Circles>        
+            </m:context>
+            <m:expect label="a v1 consumer should retain the contents of the processed element" understands="http://schemas.openxmlformats.org/Circles/v1">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" > 
+                    <Circle Center="13,0" Radius="20" Color="Yellow" /> 
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                </Circles>
+            </m:expect>
+            <m:expect label="a v2 consumer should retain the processed element itself "
+                    understands="http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"> 
+                    <v2:Watermark Opacity="v0.1">
+                        <Circle Center="0,0" Radius="20" Color="Blue" /> 
+                        <Circle Center="25,0" Radius="20" Color="Black" />
+                        <Circle Center="50,0" Radius="20" Color="Red" />
+                    </v2:Watermark> 
+                    <v2:Blink blinkPeriod="50ms">
+                        <Circle Center="13,0" Radius="20" Color="Yellow" />
+                        <Circle Center="38,0" Radius="20" Color="Green" />
+                    </v2:Blink>
+                </Circles>
+            </m:expect>            
+        </m:scenario>
+        <m:scenario label="when there are multiple namespace prefixes defined">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                        xmlns:extA="http://schemas.openxmlformats.org/Circles/extension" 
+                        xmlns:extB="http://schemas.openxmlformats.org/Circles/extension" 
+                        mc:Ignorable="extB" mc:ProcessContent="extA:Blink" > 
+                    <extB:Blink>
+                        <Circle Center="0,0" Radius="20" Color="Blue" />
+                        <Circle Center="25,0" Radius="20" Color="Black" />
+                        <Circle Center="50,0" Radius="20" Color="Red" />
+                    </extB:Blink> 
+                </Circles>
+            </m:context>
+            <m:expect label="the namespace, rather than the namespace prefix, should be used for determining what to process" 
+                    understands="http://schemas.openxmlformats.org/Circles/v1">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" > 
+                    <Circle Center="13,0" Radius="20" Color="Yellow" /> 
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                </Circles>
+            </m:expect>
+        </m:scenario>
+    </m:scenario>
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    
+    <m:scenario label="when there is content that must be understood">
+        <m:scenario label="it will be specified via the MustUnderstand attribute and">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                        xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"
+                        mc:MustUnderstand="v2"> 
+                    <Circle Center="0,0" Radius="20" Color="Blue" />
+                    <Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" /> 
+                </Circles>
+            </m:context>
+            <m:expectError label="a consumer that does not understand it must raise an error" 
+                    understands="http://schemas.openxmlformats.org/Circles/v1" />
+            <m:expect label="a consumer that does understand it should treat it as normal" 
+                    understands="http://schemas.openxmlformats.org/Circles/v1">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"  
+                    xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"> 
+                    <Circle Center="0,0" Radius="20" Color="Blue" />
+                    <Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" /> 
+                </Circles>
+            </m:expect>        
+        </m:scenario>
+        <m:scenario label="even if that content is ignorable">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                    xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"
+                    mc:MustUnderstand="v2" mc:Ignorable="v2"> 
+                    <Circle Center="0,0" Radius="20" Color="Blue" />
+                    <Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" /> 
+                </Circles>
+            </m:context>
+            <m:expectError label="a consumer that does not understand it must raise an error" 
+                understands="http://schemas.openxmlformats.org/Circles/v1" />            
+        </m:scenario>
+    </m:scenario>
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    
+    <m:scenario label="for content defined in an application defined extension element" mceVersion="proposed">
+        <m:scenario label="for simple content">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                        xmlns:ext="http://schemas.openxmlformats.org/MyExtension/v1" 
+                        mc:ExtensionElements="ext:Square"> 
+                    <Circle Center="0,0" Radius="20" Color="Blue" />
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                    <ext:Square>
+                        <Circle Center="50,0" Radius="20" Color="Red" />
+                    </ext:Square>
+                </Circles>
+            </m:context>
+            <m:expect label="a consumer should pass through the application defined element unchanged" 
+                        understands="http://schemas.openxmlformats.org/Circles/v1">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"  
+                        xmlns:ext="http://schemas.openxmlformats.org/MyExtension/v1"> 
+                    <Circle Center="0,0" Radius="20" Color="Blue" />
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                    <ext:Square>
+                        <Circle Center="50,0" Radius="20" Color="Red" />
+                    </ext:Square>
+                </Circles>
+            </m:expect>        
+        </m:scenario>
+        <m:scenario label="for application defined content containing further content that would normally be processed by MCE">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                         xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"
+                         xmlns:v3="http://schemas.openxmlformats.org/Circles/v3"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                         xmlns:ext="http://schemas.openxmlformats.org/MyExtension/v1" 
+                         mc:ExtensionElements="ext:Square" mc:MustUnderstand="v2" mc:Ignorable="v3">
+                    <Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13"/> 
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                    <ext:Square>
+                        <v2:Watermark Opacity="v0.1">
+                            <Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13" /> 
+                            <Circle Center="25,0" Radius="20" Color="Black" />
+                        </v2:Watermark> 
+                    </ext:Square>
+                </Circles>
+            </m:context>
+            <m:expect label="a consumer should pass through the application defined element unchanged, even if it would normally process that content" 
+                    understands="http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"  
+                         xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"
+                         xmlns:v3="http://schemas.openxmlformats.org/Circles/v3"
+                         xmlns:ext="http://schemas.openxmlformats.org/MyExtension/v1"> 
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                    <ext:Square>
+                        <v2:Watermark Opacity="v0.1">
+                            <Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13" /> 
+                            <Circle Center="25,0" Radius="20" Color="Black" />
+                        </v2:Watermark> 
+                    </ext:Square>
+                </Circles>
+            </m:expect>
+            <m:expectError label="a consumer should raise an error if it does not understand a required namespace, even if that namespace only appears in the application defined element" 
+                    understands="http://schemas.openxmlformats.org/Circles/v1"/>
+        </m:scenario>   
+        <m:scenario label="for application defined content containing MCE elements that would normally be processed by MCE">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                        xmlns:ext="http://schemas.openxmlformats.org/MyExtension/v1" 
+                        mc:ExtensionElements="ext:Square">
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                    <ext:Square>
+                        <mc:AlternateContent>
+                            <mc:Choice Requires="v2"><Circle Center="0,0" Radius="20" Color="Black" v2:Opacity="0.5"/></mc:Choice>
+                            <mc:Fallback><Circle Center="0,0" Radius="20" Color="Gray" /></mc:Fallback>
+                        </mc:AlternateContent>
+                    </ext:Square>
+                </Circles>
+            </m:context>
+            <m:expect label="a consumer should pass through the application defined element unchanged, even if it would normally process that MCE content" 
+                        understands="http://schemas.openxmlformats.org/Circles/v1">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"  
+                        xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:ext="http://schemas.openxmlformats.org/MyExtension/v1"> 
+                    <Circle Center="38,0" Radius="20" Color="Green" />
+                    <ext:Square>
+                        <mc:AlternateContent>
+                            <mc:Choice Requires="v2"><Circle Center="0,0" Radius="20" Color="Black" v2:Opacity="0.5"/></mc:Choice>
+                            <mc:Fallback><Circle Center="0,0" Radius="20" Color="Gray" /></mc:Fallback>
+                        </mc:AlternateContent>
+                    </ext:Square>
+                </Circles>
+            </m:expect>        
+        </m:scenario>
+    </m:scenario>
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+    <m:scenario label="Alternate content">
+        <m:scenario label="using choice and fallback only">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:v2="http://schemas.openxmlformats.org/Circles/v2" 
+                        xmlns:v3="http://schemas.openxmlformats.org/Circles/v3" 
+                        mc:Ignorable="v2 v3"> 
+                    <mc:AlternateContent>
+                        <mc:Choice Requires="v3"> 
+                            <v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /> 
+                            <v3:Circle Center="25,0" Radius="20" Color="Black" Opacity="0.5" Luminance="13" />
+                        </mc:Choice> 
+                        <mc:Fallback>
+                            <LuminanceFilter Luminance="13"> 
+                                <Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /> 
+                                <Circle Center="25,0" v2:Opacity="0.5" /> 
+                            </LuminanceFilter> 
+                        </mc:Fallback>
+                    </mc:AlternateContent> 
+                </Circles>
+            </m:context>
+            <m:expect label="should use the fallback if there is not an understood choice, ignoring components of that fallback as usual" 
+                        understands="http://schemas.openxmlformats.org/Circles/v1">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"> 
+                    <LuminanceFilter Luminance="13"> 
+                        <Circle Center="0,0" Radius="20" Color="Blue" /> 
+                        <Circle Center="25,0" /> 
+                    </LuminanceFilter> 
+                </Circles>
+            </m:expect>   
+            <m:expect label="should use the fallback if there is not an understood choice" 
+                understands="http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"
+                        xmlns:v2="http://schemas.openxmlformats.org/Circles/v2"> 
+                    <LuminanceFilter Luminance="13"> 
+                        <Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /> 
+                        <Circle Center="25,0" v2:Opacity="0.5" /> 
+                    </LuminanceFilter> 
+                </Circles>
+            </m:expect>      
+            <m:expect label="should use that choice if there is an understood choice" 
+                understands="http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2 http://schemas.openxmlformats.org/Circles/v3">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                        xmlns:v3="http://schemas.openxmlformats.org/Circles/v3"> 
+                    <v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /> 
+                    <v3:Circle Center="25,0" Radius="20" Color="Black" Opacity="0.5" Luminance="13" />
+                </Circles>
+            </m:expect>      
+        </m:scenario>        
+        <m:scenario label="when there are ignorable elements inside the AlternateContent">
+            <m:context>
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1" 
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:mcExtension="http://schemas.openxmlformats.org/futureExtension"
+                    xmlns:v2="http://schemas.openxmlformats.org/Circles/v2" 
+                    xmlns:v3="http://schemas.openxmlformats.org/Circles/v3" 
+                    mc:Ignorable="v2 v3 mcExtension"> 
+                    <mc:AlternateContent>
+                        <mcExtension:Conditional ifParameterPresent="is3d">
+                            <Sphere Color="Blue" />
+                        </mcExtension:Conditional>                        
+                        <mc:Choice Requires="v3"> 
+                            <v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /> 
+                        </mc:Choice> 
+                        <mc:Fallback>
+                            <LuminanceFilter Luminance="13"> 
+                                <Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /> 
+                            </LuminanceFilter> 
+                        </mc:Fallback>
+                    </mc:AlternateContent> 
+                </Circles>
+            </m:context>
+            <m:expect label="should ignore ignorable elements if not understood, to support future extensibility" 
+                understands="http://schemas.openxmlformats.org/Circles/v1">
+                <Circles xmlns="http://schemas.openxmlformats.org/Circles/v1"> 
+                    <LuminanceFilter Luminance="13"> 
+                        <Circle Center="0,0" Radius="20" Color="Blue" /> 
+                    </LuminanceFilter> 
+                </Circles>
+            </m:expect>   
+        </m:scenario>
+    </m:scenario>
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    
+    
+</m:description>

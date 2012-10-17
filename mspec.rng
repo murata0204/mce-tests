@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
+      xmlns:m="http://schemas.openxmlformats.org/mspec"  
+      xmlns="http://relaxng.org/ns/structure/1.0" 
+      datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  
+  <start>
+    <element name="m:description">
+      <optional>
+        <attribute name="title"/>
+      </optional>
+      <oneOrMore>
+        <ref name="m.scenario"/>
+      </oneOrMore>
+    </element>
+  </start>
+  
+  <define name="any">
+    <element>
+      <anyName/>
+      <mixed>
+        <zeroOrMore>
+          <choice>
+            <attribute>
+              <anyName/>
+            </attribute>
+            <ref name="any"/>
+          </choice>
+        </zeroOrMore>
+      </mixed>
+    </element>
+  </define>
+  
+  <define name="m.scenario">
+    <element name="m:scenario">
+      <optional>
+        <attribute name="label"/>
+      </optional>
+      <optional>
+        <attribute name="mceVersion">
+          <data type="NCName"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <ref name="m.scenario"/>
+      </zeroOrMore>
+      <optional>
+        <element name="m:context">
+          <ref name="any"/>
+        </element>
+        <oneOrMore>
+          <choice>
+            <element name="m:expect">
+              <optional>
+                <attribute name="label"/>
+              </optional>
+              <attribute name="understands">
+                <data type="anyURI"/>
+              </attribute>
+              <ref name="any"/>
+            </element>
+            <element name="m:expectError">
+              <attribute name="label"/>
+              <attribute name="understands">
+                <data type="anyURI"/>
+              </attribute>
+            </element>
+          </choice>
+        </oneOrMore>
+      </optional>
+    </element>
+  </define>
+</grammar>
