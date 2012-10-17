@@ -1,0 +1,596 @@
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>Markup Compatibility Extensions - MCE</title><style type="text/css">
+                    body { font-family: Verdana; }
+                    
+                    table { border-collapse:collapse; }                 
+                    th { background: #eee; text-align: left; }
+                    tr { border-top: solid 1px black; }
+                    td { vertical-align:text-top; width: 50%; }
+                    th, td { padding: 4px; }
+                    
+                    .understanding { font-size: 0.8em; display: block; color: #999; }
+                    .understanding:before { content: '('; }
+                    .understanding:after { content: ')'; }
+                    
+                    .context, .expectedContent { font-family: Courier; font-size: 0.9em; white-space: pre-wrap; }
+                    .context { color: green; }
+                    .expectedContent { color: blue; }
+                    .error { color: red; }
+                </style></head>
+   <body>
+      <h1>Markup Compatibility Extensions - MCE</h1>
+      <table class="scenario">
+         <tr>
+            <th colspan="2">for ignorable attribute content</th>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for ignorable attribute content a v1 consumer should only see the v1 content</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2 v3" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for ignorable attribute content a v2 consumer should see the v2 and v1 content</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2 v3" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /&gt;
+                     &lt;Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for ignorable attribute content a v3 consumer should see the v3, v2 and v1 content</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2 http://schemas.openxmlformats.org/Circles/v3</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2 v3" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                     &lt;Circle Center="25,0" Radius="20" Color="Black" v2:Opacity="0.5" v3:Luminance="13" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <th colspan="2">for ignorable elements</th>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for ignorable elements should ignore elements based on namespace, not on namespace prefix</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="a" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;a:IgnoreMe /&gt;
+                  &lt;b:IgnoreMeToo /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for ignorable elements should retain ignored elements based on namespace, not on namespace prefix</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/MyExtension/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="a" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;a:IgnoreMe /&gt;
+                  &lt;b:IgnoreMeToo /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     &lt;a:IgnoreMe /&gt;
+                     &lt;a:IgnoreMeToo /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <th colspan="2">for processContents</th>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for processContents  a v1 consumer should retain the contents of the processed element</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2" mc:ProcessContent="v2:Blink" &gt;
+                  &lt;v2:Watermark Opacity="v0.1" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                  &lt;Circle Center="50,0" Radius="20" Color="Red" /&gt;
+                  
+                  &lt;/v2:Watermark&gt;&lt;v2:Blink blinkPeriod="50ms" &gt;
+                  &lt;Circle Center="13,0" Radius="20" Color="Yellow" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                  
+                  &lt;/v2:Blink&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="13,0" Radius="20" Color="Yellow" /&gt;
+                     &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for processContents  a v2 consumer should retain the processed element itself </span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2" mc:ProcessContent="v2:Blink" &gt;
+                  &lt;v2:Watermark Opacity="v0.1" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                  &lt;Circle Center="50,0" Radius="20" Color="Red" /&gt;
+                  
+                  &lt;/v2:Watermark&gt;&lt;v2:Blink blinkPeriod="50ms" &gt;
+                  &lt;Circle Center="13,0" Radius="20" Color="Yellow" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                  
+                  &lt;/v2:Blink&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;v2:Watermark Opacity="v0.1" &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                     &lt;Circle Center="50,0" Radius="20" Color="Red" /&gt;
+                     
+                     &lt;/v2:Watermark&gt;&lt;v2:Blink blinkPeriod="50ms" &gt;
+                     &lt;Circle Center="13,0" Radius="20" Color="Yellow" /&gt;
+                     &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                     
+                     &lt;/v2:Blink&gt;
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for processContents when there are multiple namespace prefixes defined the namespace, rather than the namespace prefix, should
+                  be used for determining what to process</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="extB" mc:ProcessContent="extA:Blink" &gt;
+                  &lt;extB:Blink &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                  &lt;Circle Center="50,0" Radius="20" Color="Red" /&gt;
+                  
+                  &lt;/extB:Blink&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="13,0" Radius="20" Color="Yellow" /&gt;
+                     &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <th colspan="2">when there is content that must be understood</th>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">when there is content that must be understood it will be specified via the MustUnderstand attribute and a consumer that does
+                  not understand it must raise an error</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:MustUnderstand="v2" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent"></div>
+                  <div class="error">Expect error</div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">when there is content that must be understood it will be specified via the MustUnderstand attribute and a consumer that does
+                  understand it should treat it as normal</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:MustUnderstand="v2" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     &lt;Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">when there is content that must be understood even if that content is ignorable a consumer that does not understand it must
+                  raise an error</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:MustUnderstand="v2" mc:Ignorable="v2" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent"></div>
+                  <div class="error">Expect error</div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <th colspan="2">Alternate content</th>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">Alternate content using choice and fallback only should use the fallback if there is not an understood choice, ignoring components
+                  of that fallback as usual</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2 v3" &gt;
+                  &lt;mc:AlternateContent &gt;
+                  &lt;mc:Choice Requires="v3" &gt;
+                  &lt;v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /&gt;
+                  &lt;v3:Circle Center="25,0" Radius="20" Color="Black" Opacity="0.5" Luminance="13" /&gt;
+                  
+                  &lt;/mc:Choice&gt;&lt;mc:Fallback &gt;
+                  &lt;LuminanceFilter Luminance="13" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /&gt;
+                  &lt;Circle Center="25,0" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/LuminanceFilter&gt;
+                  &lt;/mc:Fallback&gt;
+                  &lt;/mc:AlternateContent&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;LuminanceFilter Luminance="13" &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     &lt;Circle Center="25,0" /&gt;
+                     
+                     &lt;/LuminanceFilter&gt;
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">Alternate content using choice and fallback only should use the fallback if there is not an understood choice</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2 v3" &gt;
+                  &lt;mc:AlternateContent &gt;
+                  &lt;mc:Choice Requires="v3" &gt;
+                  &lt;v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /&gt;
+                  &lt;v3:Circle Center="25,0" Radius="20" Color="Black" Opacity="0.5" Luminance="13" /&gt;
+                  
+                  &lt;/mc:Choice&gt;&lt;mc:Fallback &gt;
+                  &lt;LuminanceFilter Luminance="13" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /&gt;
+                  &lt;Circle Center="25,0" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/LuminanceFilter&gt;
+                  &lt;/mc:Fallback&gt;
+                  &lt;/mc:AlternateContent&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;LuminanceFilter Luminance="13" &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /&gt;
+                     &lt;Circle Center="25,0" v2:Opacity="0.5" /&gt;
+                     
+                     &lt;/LuminanceFilter&gt;
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">Alternate content using choice and fallback only should use that choice if there is an understood choice</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2 http://schemas.openxmlformats.org/Circles/v3</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2 v3" &gt;
+                  &lt;mc:AlternateContent &gt;
+                  &lt;mc:Choice Requires="v3" &gt;
+                  &lt;v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /&gt;
+                  &lt;v3:Circle Center="25,0" Radius="20" Color="Black" Opacity="0.5" Luminance="13" /&gt;
+                  
+                  &lt;/mc:Choice&gt;&lt;mc:Fallback &gt;
+                  &lt;LuminanceFilter Luminance="13" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /&gt;
+                  &lt;Circle Center="25,0" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/LuminanceFilter&gt;
+                  &lt;/mc:Fallback&gt;
+                  &lt;/mc:AlternateContent&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /&gt;
+                     &lt;v3:Circle Center="25,0" Radius="20" Color="Black" Opacity="0.5" Luminance="13" /&gt;
+                     
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">Alternate content when there are ignorable elements inside the AlternateContent should ignore ignorable elements if not understood,
+                  to support future extensibility</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:Ignorable="v2 v3 mcExtension" &gt;
+                  &lt;mc:AlternateContent &gt;
+                  &lt;mcExtension:Conditional ifParameterPresent="is3d" &gt;
+                  &lt;Sphere Color="Blue" /&gt;
+                  
+                  &lt;/mcExtension:Conditional&gt;&lt;mc:Choice Requires="v3" &gt;
+                  &lt;v3:Circle Center="0,0" Radius="20" Color="Blue" Opacity="0.5" Luminance="13" /&gt;
+                  
+                  &lt;/mc:Choice&gt;&lt;mc:Fallback &gt;
+                  &lt;LuminanceFilter Luminance="13" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/LuminanceFilter&gt;
+                  &lt;/mc:Fallback&gt;
+                  &lt;/mc:AlternateContent&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;LuminanceFilter Luminance="13" &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     
+                     &lt;/LuminanceFilter&gt;
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <th colspan="2">for content defined in an application defined extension element (for version: proposed)</th>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for content defined in an application defined extension element for simple content a consumer should pass through the application
+                  defined element unchanged</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:ExtensionElements="ext:Square" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                  &lt;ext:Square &gt;
+                  &lt;Circle Center="50,0" Radius="20" Color="Red" /&gt;
+                  
+                  &lt;/ext:Square&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" /&gt;
+                     &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                     &lt;ext:Square &gt;
+                     &lt;Circle Center="50,0" Radius="20" Color="Red" /&gt;
+                     
+                     &lt;/ext:Square&gt;
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for content defined in an application defined extension element for application defined content containing further content
+                  that would normally be processed by MCE a consumer should pass through the application defined element unchanged, even if
+                  it would normally process that content</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1 http://schemas.openxmlformats.org/Circles/v2</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:ExtensionElements="ext:Square" mc:MustUnderstand="v2" mc:Ignorable="v3" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                  &lt;ext:Square &gt;
+                  &lt;v2:Watermark Opacity="v0.1" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                  
+                  &lt;/v2:Watermark&gt;
+                  &lt;/ext:Square&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                     &lt;ext:Square &gt;
+                     &lt;v2:Watermark Opacity="v0.1" &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13" /&gt;
+                     &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                     
+                     &lt;/v2:Watermark&gt;
+                     &lt;/ext:Square&gt;
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for content defined in an application defined extension element for application defined content containing further content
+                  that would normally be processed by MCE a consumer should raise an error if it does not understand a required namespace, even
+                  if that namespace only appears in the application defined element</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:ExtensionElements="ext:Square" mc:MustUnderstand="v2" mc:Ignorable="v3" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13" /&gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                  &lt;ext:Square &gt;
+                  &lt;v2:Watermark Opacity="v0.1" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Blue" v3:Luminance="13" /&gt;
+                  &lt;Circle Center="25,0" Radius="20" Color="Black" /&gt;
+                  
+                  &lt;/v2:Watermark&gt;
+                  &lt;/ext:Square&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent"></div>
+                  <div class="error">Expect error</div>
+               </div>
+            </td>
+         </tr>
+         <tr>
+            <td colspan="2"><span class="expected">for content defined in an application defined extension element for application defined content containing MCE elements that
+                  would normally be processed by MCE a consumer should pass through the application defined element unchanged, even if it would
+                  normally process that MCE content</span><span class="understanding">http://schemas.openxmlformats.org/Circles/v1</span></td>
+         </tr>
+         <tr>
+            <td>
+               <div class="context">&lt;Circles mc:ExtensionElements="ext:Square" &gt;
+                  &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                  &lt;ext:Square &gt;
+                  &lt;mc:AlternateContent &gt;
+                  &lt;mc:Choice Requires="v2" &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Black" v2:Opacity="0.5" /&gt;
+                  
+                  &lt;/mc:Choice&gt;&lt;mc:Fallback &gt;
+                  &lt;Circle Center="0,0" Radius="20" Color="Gray" /&gt;
+                  
+                  &lt;/mc:Fallback&gt;
+                  &lt;/mc:AlternateContent&gt;
+                  &lt;/ext:Square&gt;
+                  &lt;/Circles&gt;
+               </div>
+            </td>
+            <td>
+               <div class="expectation">
+                  <div class="expectedContent">&lt;Circles &gt;
+                     &lt;Circle Center="38,0" Radius="20" Color="Green" /&gt;
+                     &lt;ext:Square &gt;
+                     &lt;mc:AlternateContent &gt;
+                     &lt;mc:Choice Requires="v2" &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Black" v2:Opacity="0.5" /&gt;
+                     
+                     &lt;/mc:Choice&gt;&lt;mc:Fallback &gt;
+                     &lt;Circle Center="0,0" Radius="20" Color="Gray" /&gt;
+                     
+                     &lt;/mc:Fallback&gt;
+                     &lt;/mc:AlternateContent&gt;
+                     &lt;/ext:Square&gt;
+                     &lt;/Circles&gt;
+                  </div>
+               </div>
+            </td>
+         </tr>
+      </table>
+   </body>
+</html>
