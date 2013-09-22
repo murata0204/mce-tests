@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
-      xmlns:m="http://schemas.openxmlformats.org/mspec"  
-      xmlns="http://relaxng.org/ns/structure/1.0" 
-      datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-  
+<grammar xmlns:m="http://schemas.openxmlformats.org/mspec" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <start>
     <element name="m:description">
       <optional>
@@ -14,8 +10,7 @@
       </oneOrMore>
     </element>
   </start>
-  
-  <define name="any">
+  <define name="anyElement">
     <element>
       <anyName/>
       <mixed>
@@ -24,41 +19,77 @@
             <attribute>
               <anyName/>
             </attribute>
-            <ref name="any"/>
+            <ref name="anyElement"/>
           </choice>
         </zeroOrMore>
       </mixed>
     </element>
   </define>
-  
   <define name="m.scenario">
     <element name="m:scenario">
       <attribute name="label"/>
-      <optional>
-        <attribute name="mceVersion">
-          <data type="NCName"/>
-        </attribute>
-      </optional>
       <zeroOrMore>
         <ref name="m.scenario"/>
       </zeroOrMore>
       <optional>
         <element name="m:context">
-          <ref name="any"/>
+          <choice>
+            <ref name="anyElement"/>
+            <attribute name="href">
+              <data type="anyURI"/>
+            </attribute>
+          </choice>
         </element>
         <oneOrMore>
           <choice>
             <element name="m:expect">
-              <attribute name="label"/>
+              <optional>
+                <attribute name="label"/>
+              </optional>
               <attribute name="understands">
-                <data type="anyURI"/>
+                <list>
+                  <zeroOrMore>
+                    <data type="anyURI"/>
+                  </zeroOrMore>
+                </list>
               </attribute>
-              <ref name="any"/>
+              <attribute name="extensionElements">
+                <list>
+                  <zeroOrMore>
+                    <data type="string">
+                      <param name="pattern">\{.*\}.+</param>
+                    </data>
+                  </zeroOrMore>
+                </list>
+              </attribute>
+              <optional>
+                <choice>
+                  <ref name="anyElement"/>
+                  <attribute name="href">
+                    <data type="anyURI"/>
+                  </attribute>
+                </choice>
+              </optional>
             </element>
             <element name="m:expectError">
-              <attribute name="label"/>
+              <optional>
+                <attribute name="label"/>
+              </optional>
               <attribute name="understands">
-                <data type="anyURI"/>
+                <list>
+                  <zeroOrMore>
+                    <data type="anyURI"/>
+                  </zeroOrMore>
+                </list>
+              </attribute>
+              <attribute name="extensionElements">
+                <list>
+                  <zeroOrMore>
+                    <data type="string">
+                      <param name="pattern">\{.*\}.+</param>
+                    </data>
+                  </zeroOrMore>
+                </list>
               </attribute>
             </element>
           </choice>

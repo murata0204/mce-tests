@@ -1,0 +1,45 @@
+namespace m = "http://schemas.openxmlformats.org/mspec"
+namespace mc =
+  "http://schemas.openxmlformats.org/markup-compatibility/2006"
+
+start =
+  element m:description {
+    attribute title { text }?,
+    m.scenario+
+  }
+anyElement =
+  element * {
+    mixed {
+      (attribute * { text }
+       | anyElement)*
+    }
+  }
+m.scenario =
+  element m:scenario {
+    attribute label { text },
+    m.scenario*,
+    (element m:context { anyElement | attribute href { xsd:anyURI } },
+     (element m:expect {
+        attribute label { text }?,
+        attribute understands {
+          list { xsd:anyURI* }
+        },
+        attribute extensionElements {
+          list {
+            xsd:string { pattern = "\{.*\}.+" }*
+          }
+        },
+        (anyElement | attribute href { xsd:anyURI })?
+      }
+      | element m:expectError {
+          attribute label { text }?,
+          attribute understands {
+            list { xsd:anyURI* }
+          },
+          attribute extensionElements {
+            list {
+              xsd:string { pattern = "\{.*\}.+" }*
+            }
+          }
+        })+)?
+  }
